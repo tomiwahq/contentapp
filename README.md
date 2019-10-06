@@ -25,4 +25,4 @@ After cloning the project and installing dependencies, run
 If the packager runs successfully, you can test the app using
 expo client on your phone or on Android/iOS emulator running on the
 computer. Kindly refer to https://facebook.github.io/react-native/docs/getting-started
-for more info on how to test-run a ReactNative app
+for more info on how to test/run a ReactNative app
