@@ -1,13 +1,13 @@
-import { APPLICATION } from './constants';
+import { APPLICATION } from "./constants";
 
 const initialState = {
     gettingUser: false,
-    getUserError: '',
+    getUserError: "",
     user: {},
     gettingCategories: false,
-    getCategoriesError: '',
+    getCategoriesError: "",
     categories: [],
-}
+};
 
 export default (state = initialState, action) => {
     switch (action.type) {
@@ -20,32 +20,32 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 gettingUser: false,
-                user: action.payload.user
+                user: action.payload.user,
             };
         case APPLICATION.GET_USER_ERROR:
             return {
                 ...state,
                 gettingUser: false,
-                getUserError: action.payload.getUserError
-            }
+                getUserError: action.payload.getUserError,
+            };
         case APPLICATION.GET_CATEGORIES:
             return {
                 ...state,
-                gettingUser: true,
+                gettingCategories: true,
             };
         case APPLICATION.GET_CATEGORIES_SUCCESS:
             return {
                 ...state,
-                gettingUser: false,
-                categories: action.payload.categories
+                gettingCategories: false,
+                categories: action.payload.categories,
             };
         case APPLICATION.GET_CATEGORIES_ERROR:
             return {
                 ...state,
-                gettingUser: false,
-                getCategoriesError: action.payload.getCategoriesError
-            }
+                gettingCategories: false,
+                getCategoriesError: action.payload.getCategoriesError,
+            };
         default:
             return state;
     }
-}
+};

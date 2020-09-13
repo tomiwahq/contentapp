@@ -1,13 +1,15 @@
-import { takeLeading, put, call, select } from 'redux-saga/effects';
-import axios from 'axios';
+import { takeLeading, put, call, select } from "redux-saga/effects";
+import axios from "axios";
 
-import { APPLICATION } from './constants';
+import { APPLICATION } from "./constants";
 import {
     getUserSuccessAction,
     getUserErrorAction,
     getCategoriesSuccessAction,
-    getCategoriesErrorAction
-} from './actions';
+    getCategoriesErrorAction,
+} from "./actions";
+
+import { API } from "../includes/api";
 
 // Watcher Saga
 export function* watchApplication() {
@@ -25,12 +27,12 @@ export function* handleGetUser(action: any) {
     } catch (error) {
         yield put(getUserErrorAction(error.toString()));
     }
-
 }
 
 function getUserFromApi() {
-    return axios.get('https://uinames.com/api/?ext')
-        .catch(e => { throw e })
+    return axios.get("https://uinames.com/api/?ext").catch(e => {
+        throw e;
+    });
 }
 
 // GetUser worker saga
@@ -41,10 +43,10 @@ export function* handleGetCategories(action: any) {
     } catch (error) {
         yield put(getCategoriesErrorAction(error.toString()));
     }
-
 }
 
 function getCategoriesFromApi() {
-    return axios.get('https://contentapp.apps.teraboxx.com/index.php/api/categories')
-        .catch(e => { throw e })
+    return axios.get(API.CATEGORIES).catch(e => {
+        throw e;
+    });
 }

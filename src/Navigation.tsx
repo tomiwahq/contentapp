@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from "react-navigation-tabs";
 import Home from "./screens/Home";
 import Courses from "./screens/Courses";
 import Projects from "./screens/Projects";
-import Section from "./screens/Section";
+import Post from "./screens/Post";
 
 const activeColor = "#4775f2";
 const inactiveColor = "#b8bece";
@@ -18,8 +18,8 @@ const HomeStack = createStackNavigator(
         Home: {
             screen: Home,
         },
-        Section: {
-            screen: Section,
+        Post: {
+            screen: Post,
         },
     },
     {

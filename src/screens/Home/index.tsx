@@ -10,7 +10,7 @@ import {
     SafeAreaView,
     TouchableOpacity,
     Animated,
-    Easing,
+    Platform,
     StatusBar,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,19 +22,35 @@ import Card2 from "../../components/Card2";
 import Menu from "../../components/Menu";
 import { MENU } from "../../components/Menu/constants";
 import { openMenuAction } from "../../components/Menu/actions";
-import LoginModal from "../../components/LoginModal";
+import { openLoginAction } from "../../components/Login/actions";
+import {
+    getPopularPostsAction,
+    getLatestPostsAction,
+} from "../../components/Posts/actions";
+import Login from "../../components/Login";
 
 const scale = new Animated.Value(1);
 const opacity = new Animated.Value(1);
 
 export default function Home({ navigation }) {
     const menu = useSelector((store: any) => store.menu);
+    const login = useSelector((store: any) => store.login);
+    const posts = useSelector((store: any) => store.posts);
     const application = useSelector((store: any) => store.application);
     const dispatch = useDispatch();
     const openMenu = () => dispatch(openMenuAction());
+    const openLogin = () => dispatch(openLoginAction());
+    const getPopularPosts = () => dispatch(getPopularPostsAction());
+    const getLatestPosts = () => dispatch(getLatestPostsAction());
 
     useEffect(() => {
         StatusBar.setBarStyle("dark-content", true);
+
+        if (Platform.OS == "android") {
+            StatusBar.setBarStyle("light-content", true);
+        }
+        getPopularPosts();
+        getLatestPosts();
     }, []);
 
     useEffect(() => {
@@ -64,8 +80,115 @@ export default function Home({ navigation }) {
                 toValue: 1,
             }).start();
             StatusBar.setBarStyle("dark-content", true);
+            if (Platform.OS == "android") {
+                StatusBar.setBarStyle("light-content", true);
+            }
         }
     };
+    let categories;
+    if (application.gettingCategories) {
+        categories = <CategoryPill text="Loading categories..." />;
+    } else {
+        if (
+            !Array.isArray(application.categories) ||
+            !application.categories.length ||
+            application.getCategoriesError !== ""
+        ) {
+            categories = <CategoryPill text="Error loading categories" />;
+        } else {
+            categories = application.categories.map((category, index) => (
+                <CategoryPill
+                    key={category.category_id}
+                    image={category.image}
+                    text={category.name}
+                />
+            ));
+        }
+    }
+
+    let popularPosts;
+    if (posts.gettingPopularPosts) {
+        popularPosts = (
+            <Card
+                title="Loading popular posts..."
+                caption="If you get to read this"
+                subtitle="Then your network is slow"
+            />
+        );
+    } else {
+        if (
+            !Array.isArray(posts.popularPosts) ||
+            !posts.popularPosts.length ||
+            posts.getPopularPostsError !== ""
+        ) {
+            popularPosts = (
+                <Card
+                    title="Error loading popular posts"
+                    caption="An error has occurred"
+                    subtitle="Please restart the application"
+                />
+            );
+        } else {
+            popularPosts = posts.popularPosts.map((popularPost, index) => (
+                <TouchableOpacity
+                    key={popularPost.post_id}
+                    onPress={() =>
+                        navigation.push("Post", {
+                            post: popularPost,
+                        })
+                    }
+                >
+                    <Card
+                        title={popularPost.title}
+                        image={popularPost.image}
+                        logo={popularPost.categoryImage}
+                        caption={`${index + 1} of ${
+                            posts.popularPosts.length
+                        } Posts`}
+                        subtitle={popularPost.categoryName}
+                    />
+                </TouchableOpacity>
+            ));
+        }
+    }
+
+    let latestPosts;
+    if (posts.gettingLatestPosts) {
+        latestPosts = (
+            <Card2
+                title="Loading latest posts..."
+                caption="If you get to read this"
+                subtitle="Then your network is slow"
+            />
+        );
+    } else {
+        if (
+            !Array.isArray(posts.latestPosts) ||
+            !posts.latestPosts.length ||
+            posts.getLatestPostsError !== ""
+        ) {
+            latestPosts = (
+                <Card2
+                    title="Error loading latest posts"
+                    caption="An error has occurred"
+                    subtitle="Please restart the application"
+                />
+            );
+        } else {
+            latestPosts = posts.latestPosts.map((card2, index) => (
+                <Card2
+                    key={card2.post_id}
+                    image={card2.image}
+                    title={card2.title}
+                    subtitle={card2.categoryName}
+                    logo={card2.categoryImage}
+                    author="Tomiwa Ibiwoye"
+                    avatar={require("../../../assets/avatar.jpg")}
+                    caption={card2.categoryName}
+                />
+            ));
+        }
+    }
 
     return (
         <View style={styles.rootView}>
@@ -129,55 +252,22 @@ export default function Home({ navigation }) {
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                         >
-                            {application.categories.map((category, index) => (
-                                <CategoryPill
-                                    key={index}
-                                    image={category.image}
-                                    text={category.name}
-                                />
-                            ))}
+                            {categories}
                         </ScrollView>
-                        <Text style={styles.subtitle}>Continue Reading</Text>
+                        <Text style={styles.subtitle}>Popular Posts</Text>
                         <ScrollView
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
+                            style={{ paddingLeft: 10 }}
                         >
-                            {cards.map((card, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    onPress={() =>
-                                        navigation.push("Section", {
-                                            section: card,
-                                        })
-                                    }
-                                >
-                                    <Card
-                                        title={card.title}
-                                        image={card.image}
-                                        logo={card.logo}
-                                        caption={card.caption}
-                                        subtitle={card.subtitle}
-                                    />
-                                </TouchableOpacity>
-                            ))}
+                            {popularPosts}
                         </ScrollView>
-                        <Text style={styles.subtitle}>Popular Courses</Text>
-                        {card2s.map((card2, index) => (
-                            <Card2
-                                key={index}
-                                image={card2.image}
-                                title={card2.title}
-                                subtitle={card2.subtitle}
-                                logo={card2.logo}
-                                author={card2.author}
-                                avatar={card2.avatar}
-                                caption={card2.caption}
-                            />
-                        ))}
+                        <Text style={styles.subtitle}>Latest Posts</Text>
+                        <View style={styles.card2Container}>{latestPosts}</View>
                     </ScrollView>
                 </SafeAreaView>
             </Animated.View>
-            <LoginModal />
+            <Login />
         </View>
     );
 }
@@ -226,110 +316,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#555555",
         borderRadius: 22,
     },
+
+    card2Container: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        paddingHorizontal: 10,
+    },
 });
-
-const logos = [
-    {
-        image: require("../../../assets/logo-framerx.png"),
-        text: "Framer X",
-    },
-    {
-        image: require("../../../assets/logo-figma.png"),
-        text: "Figma",
-    },
-    {
-        image: require("../../../assets/logo-react.png"),
-        text: "React",
-    },
-    {
-        image: require("../../../assets/logo-studio.png"),
-        text: "Studio",
-    },
-    {
-        image: require("../../../assets/logo-swift.png"),
-        text: "Swift",
-    },
-    {
-        image: require("../../../assets/logo-sketch.png"),
-        text: "Sketch",
-    },
-];
-
-const cards = [
-    {
-        title: "React Native for Designers 1",
-        image: require("../../../assets/background5.jpg"),
-        subtitle: "React Native 1",
-        caption: "1 of 6 Sections",
-        logo: require("../../../assets/logo-react.png"),
-    },
-    {
-        title: "React Native for Designers 2",
-        image: require("../../../assets/background11.jpg"),
-        subtitle: "React Native 2",
-        caption: "2 of 6 Sections",
-        logo: require("../../../assets/logo-figma.png"),
-    },
-    {
-        title: "React Native for Designers 3",
-        image: require("../../../assets/background13.jpg"),
-        subtitle: "React Native 3",
-        caption: "3 of 6 Sections",
-        logo: require("../../../assets/logo-vue.png"),
-    },
-    {
-        title: "React Native for Designers 4",
-        image: require("../../../assets/background16.jpg"),
-        subtitle: "React Native 4",
-        caption: "4 of 6 Sections",
-        logo: require("../../../assets/logo-framerx.png"),
-    },
-];
-
-const card2s = [
-    {
-        title: "Prototype in InVision Studio",
-        subtitle: "10 sections",
-        image: require("../../../assets/background2.jpg"),
-        logo: require("../../../assets/logo-studio.png"),
-        author: "Tomiwa Ibiwoye",
-        avatar: require("../../../assets/avatar.jpg"),
-        caption: "Design and Interactive prototype",
-    },
-    {
-        title: "Design in React",
-        subtitle: "12 sections",
-        image: require("../../../assets/background4.jpg"),
-        logo: require("../../../assets/logo-react.png"),
-        author: "Tomiwa Ibiwoye",
-        avatar: require("../../../assets/avatar.jpg"),
-        caption: "Components mean a lot",
-    },
-    {
-        title: "Prototype in Figma",
-        subtitle: "8 sections",
-        image: require("../../../assets/background6.jpg"),
-        logo: require("../../../assets/logo-figma.png"),
-        author: "Tomiwa Ibiwoye",
-        avatar: require("../../../assets/avatar.jpg"),
-        caption: "Design and Interactive prototype",
-    },
-    {
-        title: "Why Vue",
-        subtitle: "10 sections",
-        image: require("../../../assets/background8.jpg"),
-        logo: require("../../../assets/logo-vue.png"),
-        author: "Tomiwa Ibiwoye",
-        avatar: require("../../../assets/avatar.jpg"),
-        caption: "I'll stick to React",
-    },
-    {
-        title: "What is Framer X",
-        subtitle: "5 sections",
-        image: require("../../../assets/background10.jpg"),
-        logo: require("../../../assets/logo-framerx.png"),
-        author: "Tomiwa Ibiwoye",
-        avatar: require("../../../assets/avatar.jpg"),
-        caption: "I literally have no idea what it is",
-    },
-];

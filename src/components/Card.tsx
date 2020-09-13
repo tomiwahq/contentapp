@@ -1,34 +1,53 @@
-import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import React from "react";
+import { View, StyleSheet, Image, Text } from "react-native";
 
-export default (props) => {
+export default props => {
     return (
         <View style={styles.container}>
             <View style={styles.cover}>
-                <Image style={styles.image} source={props.image} />
+                <Image
+                    style={styles.image}
+                    source={
+                        props.image == undefined
+                            ? require("../../assets/background1.jpg")
+                            : { uri: props.image }
+                    }
+                />
                 <Text style={styles.title}>{props.title}</Text>
             </View>
             <View style={styles.content}>
-                <Image style={styles.logo} source={props.logo} resizeMode="contain" />
+                <Image
+                    style={styles.logo}
+                    source={
+                        props.logo == undefined
+                            ? require("../../assets/logo-react.png")
+                            : { uri: props.logo }
+                    }
+                    resizeMode="contain"
+                />
                 <View style={styles.wrapper}>
-                    <Text numberOfLines={1} style={styles.caption}>{props.caption}</Text>
-                    <Text numberOfLines={1} style={styles.subtitle}>{props.subtitle}</Text>
+                    <Text numberOfLines={1} style={styles.caption}>
+                        {props.caption}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.subtitle}>
+                        {props.subtitle}
+                    </Text>
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         width: 315,
         height: 280,
         borderRadius: 14,
-        marginLeft: 20,
+        marginHorizontal: 10,
         marginTop: 20,
         marginBottom: 30,
-        shadowColor: '#000000',
+        shadowColor: "#000000",
         shadowOffset: { width: 5, height: 5 },
         shadowOpacity: 0.15,
         shadowRadius: 15,
@@ -36,34 +55,37 @@ const styles = StyleSheet.create({
     },
 
     cover: {
-        width: '100%',
+        width: "100%",
         height: 200,
         borderTopLeftRadius: 14,
         borderTopRightRadius: 14,
-        overflow: 'hidden',
+        overflow: "hidden",
     },
 
     image: {
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
+        width: "100%",
+        height: "100%",
+        position: "absolute",
         top: 0,
         left: 0,
     },
 
     title: {
-        color: '#ffffff',
+        color: "#ffffff",
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         marginTop: 20,
         marginLeft: 20,
         width: 170,
+        textShadowColor: "rgba(0, 0, 0, 0.8)",
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 5,
     },
 
     content: {
         paddingLeft: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         height: 80,
     },
 
@@ -78,17 +100,17 @@ const styles = StyleSheet.create({
     },
 
     caption: {
-        color: '#3c4560',
+        color: "#3c4560",
         fontSize: 20,
-        fontWeight: '600',
+        fontWeight: "600",
     },
 
     subtitle: {
-        color: '#b8bece',
+        color: "#b8bece",
         fontSize: 15,
-        fontWeight: '600',
-        textTransform: 'uppercase',
+        fontWeight: "600",
+        textTransform: "uppercase",
         marginTop: 4,
-        overflow: 'hidden',
+        overflow: "hidden",
     },
-})
+});

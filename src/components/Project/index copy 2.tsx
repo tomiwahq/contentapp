@@ -186,6 +186,9 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         width: 300,
+        textShadowColor: "rgba(0, 0, 0, 0.8)",
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 5,
     },
 
     author: {
@@ -196,6 +199,9 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "600",
         textTransform: "uppercase",
+        textShadowColor: "rgba(0, 0, 0, 0.8)",
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 5,
     },
 
     text: {

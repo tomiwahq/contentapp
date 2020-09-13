@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+    Animated,
+    Dimensions,
+    Alert,
     View,
     StyleSheet,
     Image,
@@ -10,24 +13,103 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
+import Success from "../Success";
+import Loading from "../Loading";
+
+import { closeLoginAction } from "./actions";
+import { useSelector, useDispatch } from "react-redux";
+import { LOGIN } from "./constants";
+
+const screenHeightFromDimension = Dimensions.get("window").height;
+const scale = new Animated.Value(1.3);
+const translateY = new Animated.Value(0);
 
 export default props => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [iconEmail, setIconEmail] = useState(
-        require("../../assets/icon-email.png")
+        require("../../../assets/icon-email.png")
     );
     const [iconPassword, setIconPassword] = useState(
-        require("../../assets/icon-password.png")
+        require("../../../assets/icon-password.png")
     );
+    const [isSuccessful, setIsSuccessful] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const login = useSelector((state: any) => state.login);
+    const dispatch = useDispatch();
+    const closeLogin = () => dispatch(closeLoginAction());
+    const [screenHeight, setScreenHeight] = useState(screenHeightFromDimension);
+
+    useEffect(() => {
+        const adaptScreenHeight = dimensions => {
+            setScreenHeight(dimensions.window.height);
+        };
+
+        Dimensions.addEventListener("change", adaptScreenHeight);
+
+        // clean up
+        return () =>
+            Dimensions.removeEventListener("change", adaptScreenHeight);
+    }, []);
+
+    const top = new Animated.Value(screenHeight);
+
+    useEffect(() => {
+        if (login.action == LOGIN.OPEN) {
+            Animated.timing(top, {
+                toValue: 0,
+                duration: 0,
+            }).start();
+            Animated.spring(scale, { toValue: 1 }).start();
+            Animated.timing(translateY, { toValue: 0, duration: 0 }).start();
+        }
+
+        if (login.action == LOGIN.CLOSE) {
+            Animated.timing(top, {
+                toValue: screenHeight,
+                delay: 500,
+                duration: 0,
+            }).start();
+            Animated.spring(scale, { toValue: 1.3 }).start();
+            Animated.timing(translateY, {
+                toValue: screenHeight,
+                duration: 500,
+            }).start();
+        }
+    }, [login.action]);
 
     const handleLogin = () => {
         console.log("email: ", email);
         console.log("password: ", password);
+        setIsLoading(true);
+
+        setTimeout(() => {
+            setIsSuccessful(true);
+            setIsLoading(false);
+
+            Alert.alert("Congrats", "You're successfully logged in");
+            setTimeout(() => {
+                setIsSuccessful(false);
+                closeLogin();
+            }, 2000);
+        }, 2000);
     };
+
     return (
-        <View style={styles.container}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Animated.View
+            style={[
+                styles.container,
+                {
+                    top: top,
+                },
+            ]}
+        >
+            <TouchableWithoutFeedback
+                onPress={() => {
+                    Keyboard.dismiss();
+                    closeLogin();
+                }}
+            >
                 <BlurView
                     tint="default"
                     intensity={100}
@@ -38,10 +120,20 @@ export default props => {
                     }}
                 />
             </TouchableWithoutFeedback>
-            <View style={styles.modal}>
+            <Animated.View
+                style={[
+                    styles.modal,
+                    {
+                        transform: [
+                            { scale: scale },
+                            { translateY: translateY },
+                        ],
+                    },
+                ]}
+            >
                 <Image
                     style={styles.logo}
-                    source={require("../../assets/logo-react.png")}
+                    source={require("../../../assets/logo-react.png")}
                 />
                 <Text style={styles.text}>Login to access premium content</Text>
                 <TextInput
@@ -52,11 +144,11 @@ export default props => {
                     keyboardType="email-address"
                     onFocus={() =>
                         setIconEmail(
-                            require("../../assets/icon-email-animated.gif")
+                            require("../../../assets/icon-email-animated.gif")
                         )
                     }
                     onBlur={() =>
-                        setIconEmail(require("../../assets/icon-email.png"))
+                        setIconEmail(require("../../../assets/icon-email.png"))
                     }
                 />
                 <TextInput
@@ -67,12 +159,12 @@ export default props => {
                     secureTextEntry={true}
                     onFocus={() =>
                         setIconPassword(
-                            require("../../assets/icon-password-animated.gif")
+                            require("../../../assets/icon-password-animated.gif")
                         )
                     }
                     onBlur={() =>
                         setIconPassword(
-                            require("../../assets/icon-password.png")
+                            require("../../../assets/icon-password.png")
                         )
                     }
                 />
@@ -83,8 +175,10 @@ export default props => {
                         <Text style={styles.buttonText}>Login</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
-        </View>
+            </Animated.View>
+            <Success isActive={isSuccessful} />
+            <Loading isActive={isLoading} />
+        </Animated.View>
     );
 };
 
